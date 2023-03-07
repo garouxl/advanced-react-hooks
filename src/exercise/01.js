@@ -3,6 +3,18 @@
 
 import * as React from 'react'
 
+import {ErrorBoundary} from 'react-error-boundary'
+
+function ErrorFallback({error, resetErrorBoundary}) {
+  return (
+    <div role="alert">
+      There was an error:{' '}
+      <pre style={{whiteSpace: 'normal'}}>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  )
+}
+
 function countReducer(state, action) {
   const {type, step} = action
   const {count} = state
@@ -17,18 +29,26 @@ function countReducer(state, action) {
   }
 }
 
-function Counter({initialCount = 0, step = 1}) {
+function Counter({initialCount = 0, step = 1, type}) {
   const [state, dispatch] = React.useReducer(countReducer, {
     count: initialCount,
   })
   const {count} = state
-  const increment = () => dispatch({type: 'INCREMENT', step})
+  const handleClick = () =>
+    dispatch({type, step})
 
-  return <button onClick={increment}>{count}</button>
+  return <button onClick={handleClick}>{count}</button>
 }
 
 function App() {
-  return <Counter />
+  return (
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Counter type="INCREMENT"  />
+        <Counter type="DECREMENT"  />
+        <p>This one generate an error:</p>
+        <Counter type="mais" />
+      </ErrorBoundary>
+  )
 }
 
 export default App
